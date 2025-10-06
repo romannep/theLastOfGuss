@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Round } from '../models/round.model';
 import { Score } from '../models/score.model';
+import { User } from '../models/user.model';
 import { v4 as uuidv4 } from 'uuid';
 import { Transaction } from 'sequelize';
 
@@ -12,6 +13,8 @@ export class GamesService {
     private roundModel: typeof Round,
     @InjectModel(Score)
     private scoreModel: typeof Score,
+    @InjectModel(User)
+    private userModel: typeof User,
   ) {}
 
   async getAllRounds(): Promise<Round[]> {
@@ -92,5 +95,49 @@ export class GamesService {
       const score = Math.floor(scoreRecord.taps / 11) * 9 + scoreRecord.taps;
 
       return { score };
+  }
+
+  async getRoundSummary(roundUuid: string): Promise<{
+    totalScore: number;
+    bestPlayer: { username: string; score: number } | null;
+  }> {
+    // Получаем все счета для раунда с информацией о пользователях
+    const scores = await this.scoreModel.findAll({
+      where: {
+        round: roundUuid,
+      },
+      include: [
+        {
+          model: this.userModel,
+          as: 'userRef',
+          attributes: ['login'],
+        },
+      ],
+    });
+
+    // Суммируем все счета
+    const totalScore = scores.reduce((sum, score) => sum + score.score, 0);
+
+    // Находим лучшего игрока
+    let bestPlayer: { username: string; score: number } | null = null;
+    if (scores.length > 0) {
+      const bestScore = scores.reduce((max, score) => 
+        score.score > max.score ? score : max
+      );
+      bestPlayer = {
+        username: bestScore.userRef.login,
+        score: bestScore.score,
+      };
+    }
+
+    return {
+      totalScore,
+      bestPlayer,
+    };
+  }
+
+  isRoundFinished(round: Round): boolean {
+    const now = new Date();
+    return now >= round.end_datetime;
   }
 }

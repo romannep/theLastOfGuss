@@ -4,9 +4,10 @@ import { GamesController } from './games.controller';
 import { GamesService } from './games.service';
 import { Round } from '../models/round.model';
 import { Score } from '../models/score.model';
+import { User } from '../models/user.model';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Round, Score])],
+  imports: [SequelizeModule.forFeature([Round, Score, User])],
   controllers: [GamesController],
   providers: [GamesService],
 })

@@ -1,26 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
-import type { Round, Score } from '../types/api';
+import type { RoundWithScore } from '../types/api';
 import gussReady from '../assets/guss_ready.png';
 import gussStop from '../assets/guss_stop.png';
 import gussTapped from '../assets/guss_tapped.png';
 import './RoundPage.css';
 
-interface RoundData {
-  round: Round;
-  score: Score | null;
-}
-
 const RoundPage: React.FC = () => {
   const { uuid } = useParams<{ uuid: string }>();
   const navigate = useNavigate();
-  const [roundData, setRoundData] = useState<RoundData | null>(null);
+  const [roundData, setRoundData] = useState<RoundWithScore | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isTapping, setIsTapping] = useState(false);
   const [tapCount, setTapCount] = useState(0);
+  const [needReloadOnFinish, setNeedReloadOnFinish] = useState(false);
 
   // Обновляем текущее время каждую секунду
   useEffect(() => {
@@ -41,6 +37,7 @@ const RoundPage: React.FC = () => {
         const data = await apiService.getRound(uuid);
         setRoundData(data);
         setTapCount(data.score?.score || 0);
+        setNeedReloadOnFinish(new Date(data.round.end_datetime) > new Date());
       } catch (err) {
         setError('Ошибка загрузки данных раунда');
         console.error('Error fetching round data:', err);
@@ -104,6 +101,19 @@ const RoundPage: React.FC = () => {
       </div>
     );
   }
+
+  setInterval(() => {
+    if (!roundData || !needReloadOnFinish) return;
+    
+    const isFinished = new Date() > new Date(round.end_datetime);
+    
+    if (isFinished && needReloadOnFinish) {
+      setNeedReloadOnFinish(false);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  }, 1000);
 
   const { round } = roundData;
   const startTime = new Date(round.start_datetime);
@@ -201,6 +211,33 @@ const RoundPage: React.FC = () => {
         <div className="score-section">
           <h3>Ваш счет: {tapCount}</h3>
         </div>
+
+        {isFinished && roundData.totalScore !== undefined && (
+          <div className="round-results">
+            <h2>Результаты раунда</h2>
+            <div className="results-grid">
+              <div className="result-item">
+                <span className="result-label">Общий счет раунда:</span>
+                <span className="result-value">{roundData.totalScore}</span>
+              </div>
+              {roundData.bestPlayer && (
+                <div className="result-item">
+                  <span className="result-label">Лучший игрок:</span>
+                  <span className="result-value">
+                    {roundData.bestPlayer.username} ({roundData.bestPlayer.score} очков)
+                  </span>
+                </div>
+              )}
+              <div className="result-item">
+                <span className="result-label">Ваш счет:</span>
+                <span className="result-value">{roundData.currentUserScore || tapCount}</span>
+              </div>
+            </div>
+            <div className="refresh-notice">
+              Страница обновится автоматически через несколько секунд...
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="guss-container">

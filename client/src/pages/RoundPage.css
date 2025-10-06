@@ -189,6 +189,63 @@
   font-style: italic;
 }
 
+.round-results {
+  background: #e8f5e8;
+  border: 2px solid #28a745;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.round-results h2 {
+  margin: 0 0 20px 0;
+  color: #155724;
+  font-size: 24px;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.result-item {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-label {
+  font-weight: bold;
+  color: #666;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.result-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #155724;
+}
+
+.refresh-notice {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 5px;
+  padding: 10px;
+  color: #856404;
+  font-style: italic;
+  font-size: 14px;
+}
+
 @media (max-width: 600px) {
   .round-page {
     padding: 10px;

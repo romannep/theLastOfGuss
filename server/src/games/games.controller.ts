@@ -22,10 +22,20 @@ export class GamesController {
 
     const score = await this.gamesService.getOrCreateScoreByUserAndRound(req.user.sub, uuid);
     
-    return {
+    const response: any = {
       round: round,
       score: score,
     };
+
+    // Если раунд завершен, добавляем дополнительную информацию
+    if (this.gamesService.isRoundFinished(round)) {
+      const summary = await this.gamesService.getRoundSummary(uuid);
+      response.totalScore = summary.totalScore;
+      response.bestPlayer = summary.bestPlayer;
+      response.currentUserScore = score.score;
+    }
+    
+    return response;
   }
 
   @Post('tap')

@@ -26,9 +26,17 @@ export interface Score {
   score: number;
 }
 
+export interface BestPlayer {
+  username: string;
+  score: number;
+}
+
 export interface RoundWithScore {
   round: Round;
   score: Score | null;
+  totalScore?: number;
+  bestPlayer?: BestPlayer | null;
+  currentUserScore?: number;
 }
 
 export interface TapResponse {
