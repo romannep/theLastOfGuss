@@ -28,6 +28,13 @@ export class Score extends Model<Score> {
   })
   score: number;
 
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  })
+  taps: number;
+
   @BelongsTo(() => User)
   userRef: User;
 

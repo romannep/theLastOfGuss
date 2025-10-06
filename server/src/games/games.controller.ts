@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, UseGuards, Req, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Param, UseGuards, Req, ForbiddenException, Body, BadRequestException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GamesService } from './games.service';
 
@@ -30,8 +30,12 @@ export class GamesController {
 
   @Post('tap')
   @UseGuards(AuthGuard('jwt'))
-  tap() {
-    console.log('tap performed');
+  async tap(@Body() body: { uuid: string }, @Req() req: any) {
+    if (!body.uuid) {
+      throw new BadRequestException('UUID is required');
+    }
+
+    await this.gamesService.processTap(req.user.sub, body.uuid);
     return { message: 'tap performed' };
   }
 
