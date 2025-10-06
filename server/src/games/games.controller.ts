@@ -20,7 +20,7 @@ export class GamesController {
       return { error: 'Round not found' };
     }
 
-    const score = await this.gamesService.getScoreByUserAndRound(req.user.sub, uuid);
+    const score = await this.gamesService.getOrCreateScoreByUserAndRound(req.user.sub, uuid);
     
     return {
       round: round,
@@ -35,8 +35,8 @@ export class GamesController {
       throw new BadRequestException('UUID is required');
     }
 
-    await this.gamesService.processTap(req.user.sub, body.uuid);
-    return { message: 'tap performed' };
+    const result = await this.gamesService.processTap(req.user.sub, body.uuid);
+    return { message: 'tap performed', score: result.score };
   }
 
   @Post('round')

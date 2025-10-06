@@ -54,12 +54,16 @@ const RoundPage: React.FC = () => {
 
   // Обработчик тапа
   const handleTap = async () => {
-    if (!roundData || isTapping) return;
+    if (!roundData || isTapping || !uuid) return;
     
     try {
       setIsTapping(true);
-      await apiService.tap();
-      setTapCount(prev => prev + 1);
+      const response = await apiService.tap(uuid);
+      
+      // Обновляем счет только если сервер вернул больше очков, чем отображается
+      if (response.score > tapCount) {
+        setTapCount(response.score);
+      }
     } catch (err) {
       console.error('Error performing tap:', err);
     } finally {

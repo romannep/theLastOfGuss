@@ -31,6 +31,28 @@ export class GamesService {
     });
   }
 
+  async getOrCreateScoreByUserAndRound(userId: string, roundUuid: string): Promise<Score> {
+    // Сначала попробуем найти существующую запись
+    let scoreRecord = await this.scoreModel.findOne({
+      where: {
+        user: userId,
+        round: roundUuid,
+      },
+    });
+
+    // Если записи нет, создаем новую
+    if (!scoreRecord) {
+      scoreRecord = await this.scoreModel.create({
+        user: userId,
+        round: roundUuid,
+        score: 0,
+        taps: 0,
+      });
+    }
+
+    return scoreRecord;
+  }
+
   async createRound(): Promise<Round> {
     const now = new Date();
     const cooldownDuration = parseInt(process.env.COOLDOWN_DURATION || '60') * 1000; // Convert to milliseconds
@@ -50,33 +72,8 @@ export class GamesService {
     return round;
   }
 
-  async processTap(userId: string, roundUuid: string): Promise<void> {
-    const transaction = await this.scoreModel.sequelize.transaction();
+  async processTap(userId: string, roundUuid: string): Promise<{ score: number }> {
     
-    try {
-      // Найти или создать запись в таблице score
-      let scoreRecord = await this.scoreModel.findOne({
-        where: {
-          user: userId,
-          round: roundUuid,
-        },
-        transaction,
-      });
-
-      if (!scoreRecord) {
-        scoreRecord = await this.scoreModel.create({
-          user: userId,
-          round: roundUuid,
-          score: 0,
-          taps: 0,
-        }, { transaction });
-      }
-
-      // Вычислить новые значения
-      const newTaps = scoreRecord.taps + 1;
-      const newScore = Math.floor(newTaps / 11) * 9 + newTaps;
-      const scoreIncrease = newScore - scoreRecord.score;
-
       // Обновить запись в таблице score
       await this.scoreModel.increment('taps', {
         by: 1,
@@ -84,30 +81,16 @@ export class GamesService {
           user: userId,
           round: roundUuid,
         },
-        transaction,
       });
-      await this.scoreModel.increment('score', {
-        by: scoreIncrease,
+
+      const scoreRecord = await this.scoreModel.findOne({
         where: {
           user: userId,
           round: roundUuid,
         },
-        transaction,
       });
+      const score = Math.floor(scoreRecord.taps / 11) * 9 + scoreRecord.taps;
 
-      // Обновить общий счет раунда
-      await this.roundModel.increment('score', {
-        by: scoreIncrease,
-        where: {
-          uuid: roundUuid,
-        },
-        transaction,
-      });
-
-      await transaction.commit();
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
-    }
+      return { score };
   }
 }

@@ -53,10 +53,11 @@ class ApiService {
     return response.json();
   }
 
-  async tap(): Promise<TapResponse> {
+  async tap(uuid: string): Promise<TapResponse> {
     const response = await fetch(`${API_URL}/tap`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
+      body: JSON.stringify({ uuid }),
     });
 
     if (!response.ok) {
@@ -66,8 +67,8 @@ class ApiService {
     return response.json();
   }
 
-  async performTap(): Promise<TapResponse> {
-    return this.tap();
+  async performTap(uuid: string): Promise<TapResponse> {
+    return this.tap(uuid);
   }
 
   setToken(token: string): void {

@@ -33,6 +33,7 @@ export interface RoundWithScore {
 
 export interface TapResponse {
   message: string;
+  score: number;
 }
 
 export interface ApiError {
