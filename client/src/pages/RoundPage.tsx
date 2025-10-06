@@ -208,6 +208,7 @@ const RoundPage: React.FC = () => {
           onMouseDown={isActive ? handleMouseDown : undefined}
           onMouseUp={isActive ? handleMouseUp : undefined}
           onMouseLeave={isActive ? handleMouseLeave : undefined}
+          draggable={false}
         />
         {isActive && (
           <div className="tap-instruction">
