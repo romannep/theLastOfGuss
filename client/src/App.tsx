@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthPage } from './pages/AuthPage';
 import { HomePage } from './pages/HomePage';
+import RoundPage from './pages/RoundPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import './App.css';
 
@@ -15,6 +16,14 @@ function App() {
           element={
             <ProtectedRoute>
               <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/round/:uuid"
+          element={
+            <ProtectedRoute>
+              <RoundPage />
             </ProtectedRoute>
           }
         />

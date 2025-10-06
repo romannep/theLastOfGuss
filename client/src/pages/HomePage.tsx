@@ -40,7 +40,7 @@ export const HomePage: React.FC = () => {
     try {
       setCreatingRound(true);
       setError('');
-      const newRound = await apiService.createRound();
+      await apiService.createRound();
       // Обновляем список раундов
       const roundsData = await apiService.getRounds();
       setRounds(roundsData);
@@ -66,6 +66,10 @@ export const HomePage: React.FC = () => {
       default:
         return '#007bff';
     }
+  };
+
+  const handleRoundClick = (uuid: string) => {
+    navigate(`/round/${uuid}`);
   };
 
   if (loading) {
@@ -237,9 +241,21 @@ export const HomePage: React.FC = () => {
                 </thead>
                 <tbody>
                   {rounds.map((round) => (
-                    <tr key={round.uuid} style={{
-                      borderBottom: '1px solid #dee2e6'
-                    }}>
+                    <tr 
+                      key={round.uuid} 
+                      onClick={() => handleRoundClick(round.uuid)}
+                      style={{
+                        borderBottom: '1px solid #dee2e6',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f8f9fa';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
                       <td style={{
                         padding: '1rem',
                         fontFamily: 'monospace',
