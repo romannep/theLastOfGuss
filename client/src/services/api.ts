@@ -1,4 +1,4 @@
-import type { AuthRequest, AuthResponse, Round, RoundWithScore, TapResponse } from '../types/api';
+import type { AuthRequest, AuthResponse, Round, RoundWithScore, TapResponse, CreateRoundResponse, User } from '../types/api';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -80,6 +80,41 @@ class ApiService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  async createRound(): Promise<CreateRoundResponse> {
+    const response = await fetch(`${API_URL}/round`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create round');
+    }
+
+    return response.json();
+  }
+
+  decodeToken(): User | null {
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return {
+        username: payload.username,
+        role: payload.role
+      };
+    } catch (error) {
+      console.error('Failed to decode token:', error);
+      return null;
+    }
+  }
+
+  isAdmin(): boolean {
+    const user = this.decodeToken();
+    return user?.role === 'admin';
   }
 }
 

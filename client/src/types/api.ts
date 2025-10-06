@@ -7,6 +7,11 @@ export interface AuthResponse {
   access_token: string;
 }
 
+export interface User {
+  username: string;
+  role: 'user' | 'admin';
+}
+
 export interface Round {
   uuid: string;
   start_datetime: string;
@@ -33,4 +38,12 @@ export interface TapResponse {
 export interface ApiError {
   message: string;
   statusCode: number;
+}
+
+export interface CreateRoundResponse {
+  uuid: string;
+  start_datetime: string;
+  end_datetime: string;
+  status: string;
+  score: number;
 }

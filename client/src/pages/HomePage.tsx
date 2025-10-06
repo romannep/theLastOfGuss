@@ -7,6 +7,7 @@ export const HomePage: React.FC = () => {
   const [rounds, setRounds] = useState<Round[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [creatingRound, setCreatingRound] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +34,21 @@ export const HomePage: React.FC = () => {
   const handleLogout = () => {
     apiService.removeToken();
     navigate('/auth');
+  };
+
+  const handleCreateRound = async () => {
+    try {
+      setCreatingRound(true);
+      setError('');
+      const newRound = await apiService.createRound();
+      // Обновляем список раундов
+      const roundsData = await apiService.getRounds();
+      setRounds(roundsData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка создания раунда');
+    } finally {
+      setCreatingRound(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -95,20 +111,39 @@ export const HomePage: React.FC = () => {
           <h1 style={{ margin: 0, color: '#333' }}>
             The Last of Guss
           </h1>
-          <button
-            onClick={handleLogout}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.9rem'
-            }}
-          >
-            Выйти
-          </button>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            {apiService.isAdmin() && (
+              <button
+                onClick={handleCreateRound}
+                disabled={creatingRound}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: creatingRound ? '#6c757d' : '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: creatingRound ? 'not-allowed' : 'pointer',
+                  fontSize: '0.9rem'
+                }}
+              >
+                {creatingRound ? 'Создание...' : 'Создать раунд'}
+              </button>
+            )}
+            <button
+              onClick={handleLogout}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#dc3545',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              Выйти
+            </button>
+          </div>
         </header>
 
         <div style={{

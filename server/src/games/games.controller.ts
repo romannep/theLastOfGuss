@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Param, UseGuards, Req, ForbiddenException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GamesService } from './games.service';
 
@@ -33,5 +33,16 @@ export class GamesController {
   tap() {
     console.log('tap performed');
     return { message: 'tap performed' };
+  }
+
+  @Post('round')
+  @UseGuards(AuthGuard('jwt'))
+  async createRound(@Req() req: any) {
+    if (req.user.role !== 'admin') {
+      throw new ForbiddenException('Only admin users can create rounds');
+    }
+
+    const round = await this.gamesService.createRound();
+    return round;
   }
 }
