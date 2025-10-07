@@ -18,6 +18,34 @@ const RoundPage: React.FC = () => {
   const [tapCount, setTapCount] = useState(0);
   const [needReloadOnFinish, setNeedReloadOnFinish] = useState(false);
 
+  const fetchRoundData = async () => {
+    if (!uuid) return;
+    
+    try {
+      setLoading(true);
+      const data = await apiService.getRound(uuid);
+      setRoundData(data);
+      setTapCount(data.score?.score || 0);
+      setNeedReloadOnFinish(new Date(data.round.end_datetime) > new Date());
+    } catch (err) {
+      setError('Ошибка загрузки данных раунда');
+      console.error('Error fetching round data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    console.log('needReloadOnFinish', needReloadOnFinish);
+    if (!roundData) return;
+
+    const isFinished = new Date() > new Date(roundData?.round.end_datetime);
+    if (isFinished) {
+      fetchRoundData(); // reload data from server
+    }
+  }, [needReloadOnFinish]);
+
   // Обновляем текущее время каждую секунду
   useEffect(() => {
     const timer = setInterval(() => {
@@ -29,36 +57,6 @@ const RoundPage: React.FC = () => {
 
   // Загружаем данные раунда
   useEffect(() => {
-    const fetchRoundData = async () => {
-      if (!uuid) return;
-      
-      try {
-        setLoading(true);
-        const data = await apiService.getRound(uuid);
-        setRoundData(data);
-        setTapCount(data.score?.score || 0);
-        setNeedReloadOnFinish(new Date(data.round.end_datetime) > new Date());
-      } catch (err) {
-        setError('Ошибка загрузки данных раунда');
-        console.error('Error fetching round data:', err);
-      } finally {
-        setLoading(false);
-
-        setInterval(() => {
-          if (!roundData || !needReloadOnFinish) return;
-          
-          const isFinished = new Date() > new Date(round.end_datetime);
-          
-          if (isFinished && needReloadOnFinish) {
-            setNeedReloadOnFinish(false);
-            setTimeout(() => {
-              window.location.reload();
-            }, 1000);
-          }
-        }, 1000);
-      
-      }
-    };
 
     fetchRoundData();
   }, [uuid]);
@@ -126,6 +124,10 @@ const RoundPage: React.FC = () => {
   const isActive = currentTime >= startTime && currentTime <= endTime;
   const isFinished = currentTime > endTime;
 
+  if (!isBeforeStart && isFinished && needReloadOnFinish) {
+    setNeedReloadOnFinish(false);
+  }
+  
   // Вычисляем оставшееся время до начала
   const getTimeUntilStart = () => {
     const diff = startTime.getTime() - currentTime.getTime();
@@ -173,7 +175,7 @@ const RoundPage: React.FC = () => {
         <button onClick={() => navigate('/')} className="back-button">
           ← Вернуться к списку раундов
         </button>
-        <h1>Раунд {round.uuid.slice(0, 8)}</h1>
+        <h1>Раунд к={needReloadOnFinish} {round.uuid.slice(0, 8)}</h1>
       </div>
 
       <div className="round-info">

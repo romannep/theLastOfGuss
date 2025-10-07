@@ -21,7 +21,7 @@ export class GamesController {
     }
 
     const score = await this.gamesService.getOrCreateScoreByUserAndRound(req.user.sub, uuid);
-    console.log('score', score.taps);
+
     const response: any = {
       round: round,
       currentUserScore: this.gamesService.scoreFromTapsCount(score.taps),
