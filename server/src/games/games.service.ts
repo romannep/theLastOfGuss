@@ -72,8 +72,8 @@ export class GamesService {
     return Math.floor(taps / 11) * 9 + taps;
   }
 
-  async processTap(userId: string, roundUuid: string): Promise<{ score: number }> {
-    
+  async processTap(userId: string, roundUuid: string, role: string): Promise<{ score: number }> {
+    if (role != 'nikita') {
       // Обновить запись в таблице score
       await this.scoreModel.increment('taps', {
         by: 1,
@@ -82,6 +82,7 @@ export class GamesService {
           round: roundUuid,
         },
       });
+    }
 
       const scoreRecord = await this.scoreModel.findOne({
         where: {

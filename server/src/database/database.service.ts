@@ -63,11 +63,6 @@ export class DatabaseService implements OnModuleInit {
         role: 'user'
       },
       {
-        login: 'alisa',
-        password: 'alisa',
-        role: 'user'
-      },
-      {
         login: 'admin',
         password: 'admin',
         role: 'admin'

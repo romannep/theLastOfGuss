@@ -53,12 +53,12 @@ export class GamesController {
 
   @Post('tap')
   @UseGuards(AuthGuard('jwt'))
-  async tap(@Body() body: TapRequest, @Req() req: { uuid: string, user: { sub: string } }): Promise<TapResponse> {
+  async tap(@Body() body: TapRequest, @Req() req: { uuid: string, user: { sub: string, role: string } }): Promise<TapResponse> {
     if (!body.uuid) {
       throw new BadRequestException('UUID is required');
     }
 
-    const result = await this.gamesService.processTap(req.user.sub, body.uuid);
+    const result = await this.gamesService.processTap(req.user.sub, body.uuid, req.user.role);
     return { message: 'tap performed', score: result.score };
   }
 

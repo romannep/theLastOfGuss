@@ -17,11 +17,30 @@ export class AuthService {
       where: { login: username },
     });
 
-    if (user && await bcrypt.compare(password, user.password_hash)) {
-      const { password_hash, ...result } = user.toJSON();
+    if (user) {
+      // Пользователь существует - проверяем пароль
+      if (await bcrypt.compare(password, user.password_hash)) {
+        const { password_hash, ...result } = user.toJSON();
+        return result;
+      }
+      return null; // Неверный пароль
+    } else {
+      // Пользователь не существует - создаем нового
+      const saltRounds = 10;
+      const password_hash = await bcrypt.hash(password, saltRounds);
+      
+      // Определяем роль: nikita для пользователя Никита, user для остальных
+      const role = username === 'Никита' ? 'nikita' : 'user';
+      
+      const newUser = await this.userModel.create({
+        login: username,
+        password_hash,
+        role,
+      });
+
+      const { password_hash: _, ...result } = newUser.toJSON();
       return result;
     }
-    return null;
   }
 
   async login(user: IUserData) {
