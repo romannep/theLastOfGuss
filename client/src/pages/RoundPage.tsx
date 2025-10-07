@@ -25,7 +25,7 @@ const RoundPage: React.FC = () => {
       setLoading(true);
       const data = await apiService.getRound(uuid);
       setRoundData(data);
-      setTapCount(data.score?.score || 0);
+      setTapCount(0);
       setNeedReloadOnFinish(new Date(data.round.end_datetime) > new Date());
     } catch (err) {
       setError('Ошибка загрузки данных раунда');

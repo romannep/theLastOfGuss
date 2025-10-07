@@ -11,9 +11,14 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let initialFetch = true;
     const fetchRounds = async () => {
       try {
-        setLoading(true);
+        setRounds((prev) => {
+          initialFetch = prev.length === 0;
+          return prev;
+        });
+        setLoading(initialFetch);
         const roundsData = await apiService.getRounds();
         setRounds(roundsData);
       } catch (err) {
