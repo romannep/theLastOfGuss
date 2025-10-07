@@ -4,7 +4,7 @@ import { Round } from '../models/round.model';
 import { Score } from '../models/score.model';
 import { User } from '../models/user.model';
 import { v4 as uuidv4 } from 'uuid';
-import { Transaction } from 'sequelize';
+
 
 @Injectable()
 export class GamesService {
@@ -75,6 +75,10 @@ export class GamesService {
     return round;
   }
 
+  scoreFromTapsCount(taps: number) {
+    return Math.floor(taps / 11) * 9 + taps;
+  }
+
   async processTap(userId: string, roundUuid: string): Promise<{ score: number }> {
     
       // Обновить запись в таблице score
@@ -92,7 +96,7 @@ export class GamesService {
           round: roundUuid,
         },
       });
-      const score = Math.floor(scoreRecord.taps / 11) * 9 + scoreRecord.taps;
+      const score = this.scoreFromTapsCount(scoreRecord.taps);
 
       return { score };
   }
@@ -116,17 +120,20 @@ export class GamesService {
     });
 
     // Суммируем все счета
-    const totalScore = scores.reduce((sum, score) => sum + score.score, 0);
+    const totalScore = scores.reduce((sum, score) => sum + this.scoreFromTapsCount(score.taps), 0);
 
     // Находим лучшего игрока
     let bestPlayer: { username: string; score: number } | null = null;
     if (scores.length > 0) {
-      const bestScore = scores.reduce((max, score) => 
-        score.score > max.score ? score : max
-      );
+      const bestScore = scores.reduce((max, score) => { 
+        const scorePoints = this.scoreFromTapsCount(score.taps);
+        const maxPoints = this.scoreFromTapsCount(max.taps);
+        return scorePoints > maxPoints ? score : max;  
+      });
+
       bestPlayer = {
         username: bestScore.userRef.login,
-        score: bestScore.score,
+        score: this.scoreFromTapsCount(bestScore.taps),
       };
     }
 

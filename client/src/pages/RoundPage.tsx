@@ -210,9 +210,11 @@ const RoundPage: React.FC = () => {
           </div>
         )}
 
+        {!isFinished && (
         <div className="score-section">
-          <h3>Ваш счет: {tapCount}</h3>
-        </div>
+            <h3>Ваш счет: {tapCount}</h3>
+          </div>
+        )}
 
         {isFinished && roundData.totalScore !== undefined && (
           <div className="round-results">

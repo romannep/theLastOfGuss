@@ -21,10 +21,10 @@ export class GamesController {
     }
 
     const score = await this.gamesService.getOrCreateScoreByUserAndRound(req.user.sub, uuid);
-    
+    console.log('score', score.taps);
     const response: any = {
       round: round,
-      score: score,
+      currentUserScore: this.gamesService.scoreFromTapsCount(score.taps),
     };
 
     // Если раунд завершен, добавляем дополнительную информацию
@@ -32,7 +32,6 @@ export class GamesController {
       const summary = await this.gamesService.getRoundSummary(uuid);
       response.totalScore = summary.totalScore;
       response.bestPlayer = summary.bestPlayer;
-      response.currentUserScore = score.score;
     }
     
     return response;
