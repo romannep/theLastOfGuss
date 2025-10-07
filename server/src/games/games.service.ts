@@ -35,24 +35,18 @@ export class GamesService {
   }
 
   async getOrCreateScoreByUserAndRound(userId: string, roundUuid: string): Promise<Score> {
-    // Сначала попробуем найти существующую запись
-    let scoreRecord = await this.scoreModel.findOne({
+
+    const [scoreRecord] = await this.scoreModel.findOrCreate({
       where: {
         user: userId,
         round: roundUuid,
       },
-    });
-
-    // Если записи нет, создаем новую
-    if (!scoreRecord) {
-      scoreRecord = await this.scoreModel.create({
+      defaults: {
         user: userId,
         round: roundUuid,
-        score: 0,
         taps: 0,
-      });
-    }
-
+      },
+    });
     return scoreRecord;
   }
 
@@ -69,7 +63,6 @@ export class GamesService {
       start_datetime: startDatetime,
       end_datetime: endDatetime,
       status: 'scheduled',
-      score: 0,
     });
 
     return round;

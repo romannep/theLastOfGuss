@@ -5,6 +5,13 @@ import { Round } from './round.model';
 @Table({
   tableName: 'scores',
   timestamps: false,
+  indexes: [
+    {
+      unique: true,
+      fields: ['user', 'round'],
+      name: 'unique_user_round'
+    }
+  ]
 })
 export class Score extends Model<Score> {
   @ForeignKey(() => User)
@@ -20,13 +27,6 @@ export class Score extends Model<Score> {
     allowNull: false,
   })
   round: string;
-
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-    defaultValue: 0,
-  })
-  score: number;
 
   @Column({
     type: DataType.INTEGER,
