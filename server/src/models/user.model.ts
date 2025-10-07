@@ -2,11 +2,15 @@ import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
 import { Round } from './round.model';
 import { Score } from './score.model';
 
+export interface IUserData {
+  login: string;
+  role: string;
+}
 @Table({
   tableName: 'users',
   timestamps: false,
 })
-export class User extends Model<User> {
+export class User extends Model<User> implements IUserData {
   @Column({
     type: DataType.STRING,
     allowNull: false,

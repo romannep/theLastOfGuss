@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { User } from '../models/user.model';
+import { IUserData, User } from '../models/user.model';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +12,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
+  async validateUser(username: string, password: string): Promise<IUserData | null> {
     const user = await this.userModel.findOne({
       where: { login: username },
     });
@@ -24,7 +24,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
+  async login(user: IUserData) {
     const payload = { username: user.login, sub: user.login, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),

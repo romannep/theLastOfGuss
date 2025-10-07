@@ -40,7 +40,7 @@ export class GamesController {
 
   @Post('tap')
   @UseGuards(AuthGuard('jwt'))
-  async tap(@Body() body: { uuid: string }, @Req() req: any) {
+  async tap(@Body() body: { uuid: string }, @Req() req: { uuid: string, user: { sub: string } }) {
     if (!body.uuid) {
       throw new BadRequestException('UUID is required');
     }

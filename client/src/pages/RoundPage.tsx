@@ -43,6 +43,20 @@ const RoundPage: React.FC = () => {
         console.error('Error fetching round data:', err);
       } finally {
         setLoading(false);
+
+        setInterval(() => {
+          if (!roundData || !needReloadOnFinish) return;
+          
+          const isFinished = new Date() > new Date(round.end_datetime);
+          
+          if (isFinished && needReloadOnFinish) {
+            setNeedReloadOnFinish(false);
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }
+        }, 1000);
+      
       }
     };
 
@@ -102,18 +116,6 @@ const RoundPage: React.FC = () => {
     );
   }
 
-  setInterval(() => {
-    if (!roundData || !needReloadOnFinish) return;
-    
-    const isFinished = new Date() > new Date(round.end_datetime);
-    
-    if (isFinished && needReloadOnFinish) {
-      setNeedReloadOnFinish(false);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    }
-  }, 1000);
 
   const { round } = roundData;
   const startTime = new Date(round.start_datetime);
@@ -232,9 +234,6 @@ const RoundPage: React.FC = () => {
                 <span className="result-label">Ваш счет:</span>
                 <span className="result-value">{roundData.currentUserScore || tapCount}</span>
               </div>
-            </div>
-            <div className="refresh-notice">
-              Страница обновится автоматически через несколько секунд...
             </div>
           </div>
         )}
