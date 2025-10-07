@@ -38,6 +38,16 @@ The Last of Guss - игра-кликер с бэкенд и фронтэнд ч�
 - Frontend: React + TypeScript + Vite с авторизацией и отображением раундов
 
 ## Структура проекта
+- contract/ - общие типы данных для API (TypeScript пакет)
+  - src/
+    - models.ts - базовые модели данных (User, Round, Score)
+    - requests.ts - типы запросов к API (AuthRequest, TapRequest, CreateRoundRequest)
+    - responses.ts - типы ответов от API (AuthResponse, TapResponse, RoundsResponse, RoundResponse, RoundWithResultsResponse, CreateRoundResponse, ApiError)
+    - index.ts - экспорт всех типов и константы API_ENDPOINTS
+  - package.json - зависимости и скрипты TypeScript пакета
+  - tsconfig.json - конфигурация TypeScript для пакета
+  - dist/ - скомпилированные типы и декларации
+
 - server/ - бэкенд часть на NestJS
   - src/
     - models/ - модели Sequelize (User, Round, Score)
@@ -46,20 +56,20 @@ The Last of Guss - игра-кликер с бэкенд и фронтэнд ч�
     - games/ - модуль игровых эндпоинтов (GamesModule, GamesService, GamesController)
     - app.module.ts - основной модуль приложения
     - main.ts - точка входа
-  - package.json - зависимости и скрипты
+  - package.json - зависимости и скрипты (включает @roundsquares/contract)
   - tsconfig.json - конфигурация TypeScript
   - env.example - пример конфигурации окружения
 
 - client/ - фронтенд часть на React
   - src/
-    - types/ - TypeScript типы для API
+    - types/ - TypeScript типы для API (re-export из @roundsquares/contract + дополнительные типы)
     - services/ - сервис для работы с API
     - pages/ - страницы приложения (AuthPage, HomePage, RoundPage)
     - components/ - компоненты (ProtectedRoute)
     - assets/ - изображения игры (guss_ready.png, guss_stop.png, guss_tapped.png)
     - App.tsx - основное приложение с роутингом
     - main.tsx - точка входа
-  - package.json - зависимости и скрипты
+  - package.json - зависимости и скрипты (включает @roundsquares/contract)
   - vite.config.ts - конфигурация Vite
   - .env.example - пример конфигурации окружения
 
@@ -174,10 +184,12 @@ The Last of Guss - игра-кликер с бэкенд и фронтэнд ч�
 - Адаптивный дизайн с современным UI
 
 ## Технологический стек
+- Contract: TypeScript пакет с общими типами для API (@roundsquares/contract)
 - Backend: NestJS, TypeScript (strict mode), Sequelize, PostgreSQL, bcrypt, JWT, Passport, uuid
 - Frontend: React, TypeScript (strict mode), Vite, react-router-dom
 
 ## Запуск
+- Contract: cd contract && npm run build - сборка типов
 - Server: cd server && npm run start:dev - режим разработки бэкенда
 - Client: cd client && npm run dev - режим разработки фронтенда
 - Server prod: cd server && npm run build && npm run start:prod - продакшен бэкенда

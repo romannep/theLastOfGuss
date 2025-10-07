@@ -1,6 +1,16 @@
 import { Controller, Get, Post, Param, UseGuards, Req, ForbiddenException, Body, BadRequestException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GamesService } from './games.service';
+import { 
+  RoundsResponse, 
+  RoundResponse, 
+  RoundWithResultsResponse, 
+  TapRequest, 
+  TapResponse, 
+  CreateRoundResponse,
+  RoundWithScore,
+  RoundWithResults 
+} from '@roundsquares/contract';
 
 @Controller()
 export class GamesController {
@@ -8,38 +18,42 @@ export class GamesController {
 
   @Get('rounds')
   @UseGuards(AuthGuard('jwt'))
-  async getAllRounds() {
+  async getAllRounds(): Promise<RoundsResponse> {
     return this.gamesService.getAllRounds();
   }
 
   @Get('round/:uuid')
   @UseGuards(AuthGuard('jwt'))
-  async getRound(@Param('uuid') uuid: string, @Req() req: any) {
+  async getRound(@Param('uuid') uuid: string, @Req() req: any): Promise<RoundResponse | RoundWithResultsResponse> {
     const round = await this.gamesService.getRoundByUuid(uuid);
     if (!round) {
-      return { error: 'Round not found' };
+      return { error: 'Round not found' } as any;
     }
 
     const score = await this.gamesService.getOrCreateScoreByUserAndRound(req.user.sub, uuid);
 
-    const response: any = {
+    const baseResponse: RoundWithScore = {
       round: round,
-      currentUserScore: this.gamesService.scoreFromTapsCount(score.taps),
     };
 
     // Если раунд завершен, добавляем дополнительную информацию
     if (this.gamesService.isRoundFinished(round)) {
       const summary = await this.gamesService.getRoundSummary(uuid);
-      response.totalScore = summary.totalScore;
-      response.bestPlayer = summary.bestPlayer;
+      const responseWithResults: RoundWithResults = {
+        ...baseResponse,
+        totalScore: summary.totalScore,
+        bestPlayer: summary.bestPlayer,
+        currentUserScore: this.gamesService.scoreFromTapsCount(score.taps),
+      };
+      return responseWithResults;
     }
     
-    return response;
+    return baseResponse;
   }
 
   @Post('tap')
   @UseGuards(AuthGuard('jwt'))
-  async tap(@Body() body: { uuid: string }, @Req() req: { uuid: string, user: { sub: string } }) {
+  async tap(@Body() body: TapRequest, @Req() req: { uuid: string, user: { sub: string } }): Promise<TapResponse> {
     if (!body.uuid) {
       throw new BadRequestException('UUID is required');
     }
@@ -50,7 +64,7 @@ export class GamesController {
 
   @Post('round')
   @UseGuards(AuthGuard('jwt'))
-  async createRound(@Req() req: any) {
+  async createRound(@Req() req: any): Promise<CreateRoundResponse> {
     if (req.user.role !== 'admin') {
       throw new ForbiddenException('Only admin users can create rounds');
     }

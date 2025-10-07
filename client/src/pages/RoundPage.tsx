@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
-import type { RoundWithScore } from '../types/api';
+import type { RoundResponse, RoundWithResultsResponse } from '../types/api';
 import gussReady from '../assets/guss_ready.png';
 import gussStop from '../assets/guss_stop.png';
 import gussTapped from '../assets/guss_tapped.png';
@@ -10,7 +10,7 @@ import './RoundPage.css';
 const RoundPage: React.FC = () => {
   const { uuid } = useParams<{ uuid: string }>();
   const navigate = useNavigate();
-  const [roundData, setRoundData] = useState<RoundWithScore | null>(null);
+  const [roundData, setRoundData] = useState<RoundResponse | RoundWithResultsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -218,7 +218,7 @@ const RoundPage: React.FC = () => {
           </div>
         )}
 
-        {isFinished && roundData.totalScore !== undefined && (
+        {isFinished && 'totalScore' in roundData && roundData.totalScore !== undefined && (
           <div className="round-results">
             <h2>Результаты раунда</h2>
             <div className="results-grid">

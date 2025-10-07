@@ -24,6 +24,7 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/sequelize": "^10.0.0",
+    "@roundsquares/contract": "file:../contract",
     "@types/passport-jwt": "^4.0.1",
     "@types/uuid": "^10.0.0",
     "bcrypt": "^5.1.1",

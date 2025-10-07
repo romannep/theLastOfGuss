@@ -1,4 +1,14 @@
-import type { AuthRequest, AuthResponse, Round, RoundWithScore, TapResponse, CreateRoundResponse, User } from '../types/api';
+import type { 
+  AuthRequest, 
+  AuthResponse, 
+  RoundsResponse,
+  RoundResponse,
+  RoundWithResultsResponse,
+  TapRequest,
+  TapResponse, 
+  CreateRoundResponse, 
+  User 
+} from '../types/api';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -27,7 +37,7 @@ class ApiService {
     return response.json();
   }
 
-  async getRounds(): Promise<Round[]> {
+  async getRounds(): Promise<RoundsResponse> {
     const response = await fetch(`${API_URL}/rounds`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
@@ -40,7 +50,7 @@ class ApiService {
     return response.json();
   }
 
-  async getRound(uuid: string): Promise<RoundWithScore> {
+  async getRound(uuid: string): Promise<RoundResponse | RoundWithResultsResponse> {
     const response = await fetch(`${API_URL}/round/${uuid}`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
@@ -54,10 +64,11 @@ class ApiService {
   }
 
   async tap(uuid: string): Promise<TapResponse> {
+    const tapRequest: TapRequest = { uuid };
     const response = await fetch(`${API_URL}/tap`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
-      body: JSON.stringify({ uuid }),
+      body: JSON.stringify(tapRequest),
     });
 
     if (!response.ok) {
