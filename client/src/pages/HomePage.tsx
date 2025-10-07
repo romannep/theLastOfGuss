@@ -29,6 +29,12 @@ export const HomePage: React.FC = () => {
     };
 
     fetchRounds();
+
+    // Устанавливаем интервал для обновления каждые 3 секунды
+    const interval = setInterval(fetchRounds, 3000);
+
+    // Очищаем интервал при размонтировании компонента
+    return () => clearInterval(interval);
   }, [navigate]);
 
   const handleLogout = () => {
@@ -51,8 +57,8 @@ export const HomePage: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('ru-RU');
+  const formatDate = (date: string | Date) => {
+    return new Date(date).toLocaleString('ru-RU');
   };
 
   const getStatusColor = (status: string) => {
@@ -228,15 +234,6 @@ export const HomePage: React.FC = () => {
                     }}>
                       Конец
                     </th>
-                    <th style={{
-                      padding: '1rem',
-                      textAlign: 'left',
-                      borderBottom: '1px solid #dee2e6',
-                      fontWeight: '600',
-                      color: '#495057'
-                    }}>
-                      Счет
-                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -290,13 +287,6 @@ export const HomePage: React.FC = () => {
                         color: '#666'
                       }}>
                         {round.end_datetime ? formatDate(round.end_datetime) : '—'}
-                      </td>
-                      <td style={{
-                        padding: '1rem',
-                        fontWeight: '600',
-                        color: '#28a745'
-                      }}>
-                        {round.score}
                       </td>
                     </tr>
                   ))}

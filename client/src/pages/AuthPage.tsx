@@ -125,7 +125,7 @@ export const AuthPage: React.FC = () => {
           color: '#666',
           textAlign: 'center'
         }}>
-          Тестовые пользователи: roma/roma, alisa/alisa, admin/admin
+          Тестовые пользователи: roma/roma, admin/admin
         </div>
       </div>
     </div>
